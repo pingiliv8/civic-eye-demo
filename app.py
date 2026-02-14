@@ -8,11 +8,8 @@ import numpy as np
 import time
 import urllib.parse
 
-# ==========================================
-# 1. SETUP & CONFIG
-# ==========================================
-# REPLACE WITH YOUR ACTUAL KEY
-MY_API_KEY = "AIzaSyA_GKj37XcHhhdxdRAeQKLiTKc4SaH2plk" 
+
+MY_API_KEY = st.secrets["GOOGLE_API_KEY"]
 client = genai.Client(api_key=MY_API_KEY)
 
 st.set_page_config(
@@ -22,7 +19,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for that "Pro" Look
+
 st.markdown("""
     <style>
     .stApp { background-color: #0E1117; color: white; }
@@ -31,9 +28,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# ==========================================
-# 2. REAL AI FUNCTIONS (The Brains)
-# ==========================================
 
 def analyze_image_real(uploaded_file):
     """
@@ -41,10 +35,10 @@ def analyze_image_real(uploaded_file):
     It sends the image to Gemini Vision to see what is wrong.
     """
     try:
-        # 1. Open the image
+        
         image = Image.open(uploaded_file)
         
-        # 2. Ask Gemini to look at it
+        
         prompt = """
         Analyze this image. 
         1. Identify the civic issue (e.g., Pothole, Garbage Dump, Broken Streetlight, Water Leak).
@@ -100,9 +94,7 @@ def create_blockchain_id(complaint_text):
     full_hash = hashlib.sha256(data.encode()).hexdigest()
     return "0x" + full_hash  # Make it look like a real crypto tx
 
-# ==========================================
-# 3. SIDEBAR (CONTROLS)
-# ==========================================
+
 with st.sidebar:
     st.title("CivicEye Control")
     st.info("Upload evidence to auto-generate a legal complaint.")
@@ -114,9 +106,6 @@ with st.sidebar:
     st.divider()
     st.caption("System Status: Online 🟢")
 
-# ==========================================
-# 4. MAIN DASHBOARD
-# ==========================================
 st.title("👁️ CivicEye: AI Grievance System")
 st.markdown("### From Photo to Filed Complaint in 10 Seconds.")
 
@@ -132,25 +121,25 @@ if uploaded_file and location:
 
     if st.button("🚀 Analyze & Generate Complaint", type="primary"):
         
-        # 1. RUNNING VISION AI (The Friend's Part)
+       
         with st.status("🔍 AI Vision Analysis Running...", expanded=True) as status:
             st.write("Extracting image features...")
             time.sleep(1)
             
-            # CALL THE REAL FUNCTION
+            
             issue_text = analyze_image_real(uploaded_file)
             
             st.write("Classifying severity...")
             status.update(label="Analysis Complete!", state="complete", expanded=False)
         
-        # 2. SHOW AI FINDINGS
+        
         st.subheader("📊 AI Analysis Report")
         st.info(f"**DETECTED:** {issue_text}")
         
-        # 3. GENERATE DOCUMENTS
+        
         full_text = generate_complaint(issue_text, location, language)
         
-        # Split output (Simple logic)
+        
         try:
             letter = full_text.split("[LETTER END]")[0].replace("[LETTER START]", "")
             tweet = full_text.split("[TWEET START]")[1].replace("[TWEET END]", "")
@@ -158,7 +147,7 @@ if uploaded_file and location:
             letter = full_text
             tweet = "Fix this issue immediately! #CivicEye"
 
-        # 4. DISPLAY RESULTS
+       
         c1, c2 = st.columns(2)
         with c1:
             st.success("✅ Formal Letter Ready")
@@ -171,7 +160,7 @@ if uploaded_file and location:
             st.code(b_id, language="text")
             st.caption("Immutable Transaction Hash (Simulated)")
 
-        # 5. TWITTER BUTTON
+       
         st.subheader("📢 Take Action")
         tweet_encoded = urllib.parse.quote(tweet)
         st.link_button("🐦 Post to Twitter (X)", f"https://twitter.com/intent/tweet?text={tweet_encoded}")
